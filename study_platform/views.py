@@ -3,14 +3,16 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
 
-from study_platform.models import Course, Subject, Payment
+from study_platform.models import Course, Subject, Payment, Subscription
+from study_platform.paginators import SubjectPaginator, CoursePaginator
 from study_platform.permissions import IsOwner, IsModer
-from study_platform.serializers import CourseSerializer, SubjectSerializer, PaymentSerializer
+from study_platform.serializers import CourseSerializer, SubjectSerializer, PaymentSerializer, SubscriptionSerializer
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
+    pagination_class = CoursePaginator
 
     def perform_update(self, serializer):
         updated_course = serializer.save()
@@ -39,6 +41,7 @@ class SubjectCreateAPIView(generics.CreateAPIView):
 
 class SubjectListAPIView(generics.ListAPIView):
     serializer_class = SubjectSerializer
+    pagination_class = SubjectPaginator
     queryset = Subject.objects.all()
     permission_classes = [IsAuthenticated, IsOwner | IsModer]
 
@@ -78,3 +81,21 @@ class PaymentRetrieveAPIView(generics.RetrieveAPIView):
     serializer_class = PaymentSerializer
     queryset = Payment.objects.all()
     permission_classes = [IsAuthenticated]
+
+
+class SubscriptionListAPIView(generics.ListAPIView):
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
+    permission_classes = [IsAuthenticated]
+
+
+class SubscriptionCreateAPIView(generics.CreateAPIView):
+    serializer_class = SubscriptionSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class SubscriptionDestroyAPIView(generics.DestroyAPIView):
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
+    permission_classes = [IsAuthenticated]
+
