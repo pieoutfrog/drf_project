@@ -1,0 +1,20 @@
+[
+  {
+    "model": "study_platform.subscription",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "course": 1,
+      "subscription": true
+    }
+  },
+  {
+    "model": "study_platform.subscription",
+    "pk": 2,
+    "fields": {
+      "user": 2,
+      "course": 2,
+      "subscription": false
+    }
+  }
+]

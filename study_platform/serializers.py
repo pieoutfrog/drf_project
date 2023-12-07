@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from study_platform.services import get_link
 from study_platform.validators import forbidden_url
 from study_platform.models import Course, Subject, Payment, Subscription
 
@@ -35,3 +37,21 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = '__all__'
+
+
+class PaymentRetrieveSerializer(serializers.ModelSerializer):
+    payment_link = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Payment
+        fields = '__all__'
+
+    @staticmethod
+    def get_payment_link(instance):
+        return get_link(instance)
+
+
+class PaymentSuccessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = ['amount', 'is_paid']

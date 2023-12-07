@@ -1,0 +1,26 @@
+[
+  {
+    "model": "study_platform.payment",
+    "pk": 1,
+    "fields": {
+      "user": null,
+      "pay_day": "2023-01-01T12:00:00Z",
+      "paid_course": 1,
+      "paid_lesson": null,
+      "amount": "10.00",
+      "payment_method": "cash"
+    }
+  },
+  {
+    "model": "study_platform.payment",
+    "pk": 2,
+    "fields": {
+      "user": 1,
+      "pay_day": "2023-02-01T12:00:00Z",
+      "paid_course": null,
+      "paid_lesson": 1,
+      "amount": "15.00",
+      "payment_method": "card"
+    }
+  }
+]

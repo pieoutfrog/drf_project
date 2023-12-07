@@ -1,0 +1,24 @@
+[
+  {
+    "model": "study_platform.subject",
+    "pk": 1,
+    "fields": {
+      "title": "Subject 1",
+      "description": "Description of Subject 1",
+      "preview": "previews/subject1.jpg",
+      "video_url": "https://example.com/video1",
+      "course": 1
+    }
+  },
+  {
+    "model": "study_platform.subject",
+    "pk": 2,
+    "fields": {
+      "title": "Subject 2",
+      "description": "Description of Subject 2",
+      "preview": "previews/subject2.jpg",
+      "video_url": "https://example.com/video2",
+      "course": 1
+    }
+  }
+]

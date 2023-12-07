@@ -1,0 +1,22 @@
+[
+  {
+    "model": "study_platform.course",
+    "pk": 1,
+    "fields": {
+      "title": "Course 1",
+      "description": "Description of Course 1",
+      "preview": "previews/course1.jpg"
+    }
+  },
+  {
+    "model": "study_platform.course",
+    "pk": 2,
+    "fields": {
+      "title": "Course 2",
+      "description": "Description of Course 2",
+      "preview": "previews/course2.jpg"
+    }
+  }
+]
+
+

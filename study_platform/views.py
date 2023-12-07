@@ -1,15 +1,20 @@
+import stripe
 from django_filters import OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 
+from config.settings import STRIPE_API_KEY
 from study_platform.models import Course, Subject, Payment, Subscription
 from study_platform.paginators import SubjectPaginator, CoursePaginator
 from study_platform.permissions import IsOwner, IsModer
-from study_platform.serializers import CourseSerializer, SubjectSerializer, PaymentSerializer, SubscriptionSerializer
+from study_platform.serializers import CourseSerializer, SubjectSerializer, PaymentSerializer, SubscriptionSerializer, \
+    PaymentSuccessSerializer
 
 
 class CourseViewSet(viewsets.ModelViewSet):
+    """ Отображает список курсов, создает, обновляет курсы """
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
     pagination_class = CoursePaginator
@@ -35,11 +40,13 @@ class CourseViewSet(viewsets.ModelViewSet):
 
 
 class SubjectCreateAPIView(generics.CreateAPIView):
+    """ Создает предмет """
     serializer_class = SubjectSerializer
     permission_classes = [IsAuthenticated, IsOwner]
 
 
 class SubjectListAPIView(generics.ListAPIView):
+    """ Отображает список предметов """
     serializer_class = SubjectSerializer
     pagination_class = SubjectPaginator
     queryset = Subject.objects.all()
@@ -47,23 +54,27 @@ class SubjectListAPIView(generics.ListAPIView):
 
 
 class SubjectRetrieveAPIView(generics.RetrieveAPIView):
+    """ Отображает один предмет """
     serializer_class = SubjectSerializer
     queryset = Subject.objects.all()
     permission_classes = [IsAuthenticated, IsOwner]
 
 
 class SubjectUpdateAPIView(generics.UpdateAPIView):
+    """ Обновляет предмет """
     serializer_class = SubjectSerializer
     queryset = Subject.objects.all()
     permission_classes = [IsAuthenticated, IsOwner]
 
 
 class SubjectDestroyAPIView(generics.DestroyAPIView):
+    """ Удаляет предмет """
     queryset = Subject.objects.all()
     permission_classes = [IsAuthenticated, IsOwner]
 
 
 class PaymentListAPIView(generics.ListAPIView):
+    """ Отображает список оплат """
     serializer_class = PaymentSerializer
     queryset = Payment.objects.all()
     filter_backends = [DjangoFilterBackend, OrderingFilter]
@@ -73,29 +84,54 @@ class PaymentListAPIView(generics.ListAPIView):
 
 
 class PaymentCreateAPIView(generics.CreateAPIView):
+    """ Создает оплату """
     serializer_class = PaymentSerializer
     permission_classes = [IsAuthenticated]
 
 
 class PaymentRetrieveAPIView(generics.RetrieveAPIView):
+    """ Отображает одну оплату """
     serializer_class = PaymentSerializer
     queryset = Payment.objects.all()
     permission_classes = [IsAuthenticated]
 
 
 class SubscriptionListAPIView(generics.ListAPIView):
+    """ Отображает список подписок """
     serializer_class = SubscriptionSerializer
     queryset = Subscription.objects.all()
     permission_classes = [IsAuthenticated]
 
 
 class SubscriptionCreateAPIView(generics.CreateAPIView):
+    """ Создает подписку """
     serializer_class = SubscriptionSerializer
     permission_classes = [IsAuthenticated]
 
 
 class SubscriptionDestroyAPIView(generics.DestroyAPIView):
+    """ Удаляет подписку """
     serializer_class = SubscriptionSerializer
     queryset = Subscription.objects.all()
     permission_classes = [IsAuthenticated]
 
+
+class PaymentSuccessAPIView(generics.RetrieveAPIView):
+    """ Успешная оплата """
+    stripe.api_key = STRIPE_API_KEY
+    serializer_class = PaymentSuccessSerializer
+    queryset = Payment.objects.all()
+
+    def get_object(self):
+
+        session_id = self.request.query_params.get('session_id')
+        session = stripe.checkout.Session.retrieve(session_id)
+
+        payment_id = session.metadata['payment_id']
+        obj = get_object_or_404(self.get_queryset(), pk=payment_id)
+
+        if not obj.is_paid:
+            if session.payment_status == 'paid':
+                obj.is_paid = True
+                obj.save()
+        return obj
