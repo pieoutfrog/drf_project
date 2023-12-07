@@ -29,8 +29,8 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     @staticmethod
-    def get_num_lessons(instance):
-        return instance.lessons.count()
+    def get_num_lessons(self, obj):
+        return SubjectSerializer(Subject.objects.filter(course=obj), many=True).data
 
 
 class PaymentSerializer(serializers.ModelSerializer):
