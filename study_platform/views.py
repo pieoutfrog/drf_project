@@ -4,7 +4,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
-
+from study_platform.tasks import send_mail_about_updates
 from config.settings import STRIPE_API_KEY
 from study_platform.models import Course, Subject, Payment, Subscription
 from study_platform.paginators import SubjectPaginator, CoursePaginator
@@ -43,6 +43,11 @@ class SubjectCreateAPIView(generics.CreateAPIView):
     """ Создает предмет """
     serializer_class = SubjectSerializer
     permission_classes = [IsAuthenticated, IsOwner]
+    def perform_create(self, serializer):
+        new_lesson = serializer.save()
+        new_lesson.owner = self.request.user
+        send_mail_about_updates.delay(new_lesson.course.id)
+        new_lesson.save()
 
 
 class SubjectListAPIView(generics.ListAPIView):
@@ -65,6 +70,12 @@ class SubjectUpdateAPIView(generics.UpdateAPIView):
     serializer_class = SubjectSerializer
     queryset = Subject.objects.all()
     permission_classes = [IsAuthenticated, IsOwner]
+
+    def perform_update(self, serializer):
+        updated_lesson = serializer.save()
+        updated_lesson.owner = self.request.user
+        send_mail_about_updates.delay(updated_lesson.course.id)
+        updated_lesson.save()
 
 
 class SubjectDestroyAPIView(generics.DestroyAPIView):

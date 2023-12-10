@@ -10,11 +10,13 @@ class Course(models.Model):
     title = models.CharField(max_length=100, verbose_name='Название')
     description = models.TextField(verbose_name='Описание', **NULLABLE)
     preview = models.ImageField(upload_to='previews/', verbose_name='Превью', **NULLABLE)
+    price = models.IntegerField(verbose_name='Цена', default=0)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, **NULLABLE)
 
     objects = models.Manager()
 
     def __str__(self):
-        return f'{self.title}'
+        return f'{self.title}, {self.price}'
 
     class Meta:
         verbose_name = 'Курс'
@@ -27,7 +29,9 @@ class Subject(models.Model):
     description = models.TextField(verbose_name='Описание', **NULLABLE)
     preview = models.ImageField(upload_to='previews/', verbose_name='Превью', **NULLABLE)
     video_url = models.URLField()
+    price = models.IntegerField(verbose_name='Цена', default=0)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, **NULLABLE, related_name='lessons')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, **NULLABLE)
     objects = models.Manager()
 
     def __str__(self):
